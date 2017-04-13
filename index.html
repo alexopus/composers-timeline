@@ -1,0 +1,162 @@
+<!DOCTYPE HTML>
+<html>
+
+<head>
+  <title>Composers Timeline</title>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+
+  <script src="vendor/vis.js"></script>
+
+  <link href="vendor/vis.css" rel="stylesheet" type="text/css" />
+
+  <link href="https://fonts.googleapis.com/css?family=Slabo+27px" rel="stylesheet">
+
+  <style type="text/css">
+    body {
+      font-family: 'Slabo 27px', 'Open Sans', sans-serif;
+        background: transparent url("images/ep_naturalwhite.png") repeat scroll 0% 0%;
+    }
+    #header {
+        text-align: left;
+    }
+    h1 {
+        margin: 20px;
+        font-family: 'Slabo 27px', serif;
+        font-size: 42px;
+        color: #444;
+        font-weight: 900;
+        text-shadow: 1px 1px 3px rgba(0,0,0,0.2);
+        cursor: default;
+    }
+    #details {
+        margin: 10px auto;
+        background-color: #ddd;
+        text-align: center;
+        width: 500px;
+        box-shadow: 1px 1px 3px rgba(0,0,0,0.2);
+        background-color: #d7ccc8;
+        border: 1px solid #795548;
+        color: #333;
+    }
+    .vis-item.vis-range {
+        border-radius: 0;
+        box-shadow: 1px 1px 3px rgba(0,0,0,0.2);
+        background-color: #d7ccc8;
+        border-color: #795548;
+        color: #333;
+        cursor: pointer;
+    }
+    .vis-item.vis-range.vis-selected {
+        background-color: #b79f96;
+    }
+    .vis-time-axis .vis-grid.vis-minor {
+        border-color: #bfbfbf;
+    }
+    li.small {
+        font-size: 13px;
+        color: #b71c1c;
+        list-style-type: none;
+    }
+  </style>
+</head>
+
+<body>
+    <div id="header">
+        <h1>Composers Timeline</h1>
+    </div>
+    <div id="visualization"></div>
+    <div id="details"></div>
+
+    <script type="text/javascript">
+        var container = document.getElementById('visualization');
+        var details = document.getElementById('details');
+        details.style.display = 'none';
+
+        var monthNames = ["January", "February", "March", "April", "May", "June",
+            "July", "August", "September", "October", "November", "December"
+        ];
+
+        function calculateAge(birthMonth, birthDay, birthYear, deathMonth, deathDay, deathYear)
+        {
+            age = deathYear - birthYear;
+
+            if (deathMonth < birthMonth - 1)
+            {
+                age--;
+            }
+
+            if (birthMonth - 1 == deathMonth && deathDay < birthDay)
+            {
+                age--;
+            }
+
+            return age;
+        }
+
+        var items = new vis.DataSet([
+            { id: 1,  content: 'Ludwig van Beethoven',     start: '1770-12-16', end: '1827-03-26' },
+            { id: 2,  content: 'Wolfgang Amadeus Mozart',  start: '1756-01-27', end: '1791-12-05' },
+            { id: 3,  content: 'Johann Sebastian Bach',    start: '1685-03-31', end: '1750-07-28' },
+            { id: 4,  content: 'Claude Debussy',           start: '1862-08-22', end: '1918-03-25' },
+            { id: 5,  content: 'Frédéric Chopin',          start: '1810-03-01', end: '1849-10-17' },
+            { id: 6,  content: 'Franz Joseph Haydn',       start: '1732-03-31', end: '1809-05-31' },
+            { id: 7,  content: 'George Frideric Handel',   start: '1685-02-23', end: '1759-04-14' },
+            { id: 8,  content: 'Sergei Rachmaninov',       start: '1873-04-01', end: '1943-03-28' },
+            { id: 9,  content: 'Pyotr Ilyich Tchaikovsky', start: '1840-05-07', end: '1893-11-06' },
+            { id: 10, content: 'Gustav Mahler',            start: '1860-07-07', end: '1911-05-18' },
+            { id: 11, content: 'Giuseppe Verdi',           start: '1813-10-10', end: '1901-01-27' },
+            { id: 12, content: 'Johannes Brahms',          start: '1833-05-07', end: '1897-04-03' },
+            { id: 13, content: 'Franz Liszt',              start: '1811-10-22', end: '1886-07-31' },
+            { id: 14, content: 'Robert Schumann',          start: '1810-06-08', end: '1856-07-29' },
+            { id: 15, content: 'Franz Schubert',           start: '1797-01-31', end: '1828-11-19' },
+            { id: 16, content: 'Richard Wagner',           start: '1813-05-22', end: '1883-02-13' },
+            { id: 17, content: 'Isaac Albéniz',            start: '1860-05-29', end: '1909-05-18' },
+            { id: 18, content: 'Edvard Grieg',             start: '1843-06-15', end: '1907-09-04' },
+            { id: 19, content: 'Alberto Ginastera',        start: '1916-04-11', end: '1983-06-25' },
+            { id: 20, content: 'Antonín Dvořák',           start: '1841-09-08', end: '1904-05-01' },
+            { id: 21, content: 'Antonio Vivaldi',          start: '1678-03-04', end: '1741-06-28' },
+        ]);
+
+        var options = {
+            showCurrentTime: false,
+            min: '1600',
+            max: '2000',
+            template: function(item, element, data) {
+                var bday = new Date(item.start);
+                var dday = new Date(item.end);
+
+                return item.content + '<br>'
+                       + '<li class="small">'
+                       + monthNames[bday.getMonth()] + ' ' + bday.getDate() + ', ' + bday.getFullYear() + ' &ndash; '
+                       + monthNames[dday.getMonth()] + ' ' + dday.getDate() + ', ' + dday.getFullYear()
+                       + '</li>';
+            }
+        };
+
+        var timeline = new vis.Timeline(container, items, options);
+
+        timeline.on('select', function (props) {
+            if (props.items.length > 0)
+            {
+                var bday = new Date(items._data[props.items[0]].start);
+                var dday = new Date(items._data[props.items[0]].end);
+
+                details.style.display = 'block';
+
+                details.innerHTML = items._data[props.items[0]].content
+                                  + '<li class="small">'
+                                  + monthNames[bday.getMonth()] + ' ' + bday.getDate() + ', ' + bday.getFullYear() + ' &ndash; '
+                                  + monthNames[dday.getMonth()] + ' ' + dday.getDate() + ', ' + dday.getFullYear()
+                                  + '</li>'
+                                  + 'aged: ' + calculateAge(bday.getMonth(), bday.getDate(), bday.getYear(), dday.getMonth(), dday.getDate(), dday.getYear())
+                                  + '<br>';
+            }
+            else
+            {
+                details.innerHTML = '';
+                details.style.display = 'none'
+            }
+        });
+    </script>
+</body>
+</html>
